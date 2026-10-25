@@ -526,5 +526,26 @@
 
   loadStudents();
 </script>
+
+<script>
+/* LOCAL DEMO API AUTH */
+(function () {
+  const originalFetch = window.fetch.bind(window);
+  const token = "Basic " + btoa("admin:ChangeMe123!");
+
+  window.fetch = function (input, init = {}) {
+    const url = typeof input === "string" ? input : input.url;
+    if (url && /^https?:\/\/localhost:8080\/api\//.test(url)) {
+      const headers = new Headers(
+        init.headers || (input instanceof Request ? input.headers : undefined)
+      );
+      headers.set("Authorization", token);
+      init = { ...init, headers };
+    }
+    return originalFetch(input, init);
+  };
+})();
+</script>
+
 </body>
 </html>

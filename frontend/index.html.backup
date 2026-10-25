@@ -1,0 +1,234 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Record Management System</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #182238;
+    }
+    header {
+      background: #14213d;
+      color: white;
+      padding: 22px 6%;
+    }
+    header h1 { margin: 0 0 8px; font-size: 25px; }
+    header p { margin: 0; color: #cbd5e1; }
+    .container { max-width: 1100px; margin: 30px auto; padding: 0 18px; }
+    .status { margin-bottom: 18px; font-size: 14px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 4px 18px #1725540b;
+    }
+    .stat-label { color: #64748b; font-size: 14px; }
+    .stat-number { font-size: 30px; font-weight: bold; margin-top: 10px; }
+    h2 { margin-top: 0; font-size: 19px; }
+    form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    input { border: 1px solid #d5ddeb; outline-color: #3563e9; }
+    button { border: 0; cursor: pointer; font-weight: bold; }
+    .primary { background: #315bea; color: white; }
+    .primary:hover { background: #2348c7; }
+    .danger { background: #fee2e2; color: #b91c1c; padding: 8px 10px; }
+    .toolbar { display: flex; gap: 12px; margin-bottom: 16px; }
+    .toolbar input { flex: 1; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 580px; }
+    th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid #edf0f5; }
+    th { color: #64748b; font-size: 13px; background: #f8fafc; }
+    .message { margin-top: 14px; font-size: 14px; }
+    .empty { text-align: center; padding: 25px; color: #64748b; }
+    footer { text-align: center; color: #64748b; padding: 25px; font-size: 13px; }
+    @media (max-width: 500px) {
+      header h1 { font-size: 21px; }
+      .toolbar { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Student Record Management System</h1>
+    <p>Manage student records in one place</p>
+  </header>
+
+  <main class="container">
+    <div class="status" id="apiStatus">Connecting to backend...</div>
+
+    <section class="grid">
+      <div class="card">
+        <div class="stat-label">Total Students</div>
+        <div class="stat-number" id="totalStudents">0</div>
+      </div>
+      <div class="card">
+        <div class="stat-label">Course</div>
+        <div class="stat-number" style="font-size:20px">Computer Science</div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-bottom:24px">
+      <h2>Add New Student</h2>
+      <form id="studentForm">
+        <input id="name" placeholder="Student full name" required maxlength="100">
+        <input id="course" placeholder="Course" required maxlength="100">
+        <input id="semester" placeholder="Semester (e.g. 5th)" required maxlength="30">
+        <button class="primary" type="submit">+ Add Student</button>
+      </form>
+      <div class="message" id="formMessage" role="status"></div>
+    </section>
+
+    <section class="card">
+      <h2>Student Records</h2>
+      <div class="toolbar">
+        <input id="search" placeholder="Search by name, course or semester...">
+        <button class="primary" id="refreshBtn" type="button" style="width:auto">Refresh</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Course</th>
+              <th>Semester</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="studentTable">
+            <tr><td colspan="5" class="empty">Loading records...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="message" id="listMessage" role="status"></div>
+    </section>
+  </main>
+
+  <footer>Student Record Management System · Academic Project</footer>
+
+  <script>
+    const API = "http://localhost:8080/api/students";
+    let students = [];
+
+    const statusEl = document.getElementById("apiStatus");
+    const table = document.getElementById("studentTable");
+    const formMessage = document.getElementById("formMessage");
+    const listMessage = document.getElementById("listMessage");
+
+    async function loadStudents() {
+      statusEl.textContent = "Connecting to backend...";
+      try {
+        const response = await fetch(API);
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        students = await response.json();
+        statusEl.textContent = "● Backend connected";
+        statusEl.style.color = "#15803d";
+        renderStudents();
+      } catch (error) {
+        statusEl.textContent = "● Backend unavailable. Start Spring Boot on port 8080.";
+        statusEl.style.color = "#b91c1c";
+        table.innerHTML = '<tr><td colspan="5" class="empty">Cannot load records. Check that the backend is running.</td></tr>';
+        document.getElementById("totalStudents").textContent = "—";
+      }
+    }
+
+    function renderStudents() {
+      const query = document.getElementById("search").value.trim().toLowerCase();
+      const filtered = students.filter(student =>
+        [student.name, student.course, student.semester, student.id]
+          .some(value => String(value ?? "").toLowerCase().includes(query))
+      );
+
+      document.getElementById("totalStudents").textContent = students.length;
+      table.replaceChildren();
+
+      if (!filtered.length) {
+        const row = table.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 5;
+        cell.className = "empty";
+        cell.textContent = query ? "No matching students found." : "No student records yet. Add a student above.";
+        return;
+      }
+
+      filtered.forEach(student => {
+        const row = table.insertRow();
+        [student.id, student.name, student.course, student.semester].forEach(value => {
+          const cell = row.insertCell();
+          cell.textContent = value ?? "—";
+        });
+
+        const actionCell = row.insertCell();
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "danger";
+        deleteButton.textContent = "Delete";
+        deleteButton.type = "button";
+        deleteButton.addEventListener("click", () => deleteStudent(student.id));
+        actionCell.appendChild(deleteButton);
+      });
+    }
+
+    document.getElementById("studentForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      formMessage.textContent = "Adding student...";
+      const student = {
+        name: document.getElementById("name").value.trim(),
+        course: document.getElementById("course").value.trim(),
+        semester: document.getElementById("semester").value.trim()
+      };
+
+      try {
+        const response = await fetch(API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(student)
+        });
+        if (!response.ok) throw new Error("Could not add student");
+        await response.json();
+        event.target.reset();
+        formMessage.textContent = "Student added successfully!";
+        await loadStudents();
+      } catch (error) {
+        formMessage.textContent = "Failed to add student. Check the backend.";
+      }
+    });
+
+    async function deleteStudent(id) {
+      if (!confirm("Delete student ID " + id + "?")) return;
+      listMessage.textContent = "Deleting...";
+      try {
+        const response = await fetch(`${API}/${encodeURIComponent(id)}`, {
+          method: "DELETE"
+        });
+        if (!response.ok) throw new Error("Could not delete student");
+        listMessage.textContent = "Student deleted successfully.";
+        await loadStudents();
+      } catch (error) {
+        listMessage.textContent = "Delete failed. Check the backend.";
+      }
+    }
+
+    document.getElementById("search").addEventListener("input", renderStudents);
+    document.getElementById("refreshBtn").addEventListener("click", loadStudents);
+
+    loadStudents();
+  </script>
+</body>
+</html>

@@ -1,3 +1,10 @@
 /home/lofar/Projects/StudentRecordManagementSystem/backend/student-management-backend/src/main/java/com/studentmanagement/App.java
+/home/lofar/Projects/StudentRecordManagementSystem/backend/student-management-backend/src/main/java/com/studentmanagement/SecurityConfig.java
 /home/lofar/Projects/StudentRecordManagementSystem/backend/student-management-backend/src/main/java/com/studentmanagement/StudentController.java
 /home/lofar/Projects/StudentRecordManagementSystem/backend/student-management-backend/src/main/java/com/studentmanagement/StudentManagementApplication.java
+/home/lofar/Projects/StudentRecordManagementSystem/backend/student-management-backend/src/main/java/com/studentmanagement/model/Attendance.java
+/home/lofar/Projects/StudentRecordManagementSystem/backend/student-management-backend/src/main/java/com/studentmanagement/model/Result.java
+/home/lofar/Projects/StudentRecordManagementSystem/backend/student-management-backend/src/main/java/com/studentmanagement/model/Student.java
+/home/lofar/Projects/StudentRecordManagementSystem/backend/student-management-backend/src/main/java/com/studentmanagement/repository/AttendanceRepository.java
+/home/lofar/Projects/StudentRecordManagementSystem/backend/student-management-backend/src/main/java/com/studentmanagement/repository/ResultRepository.java
+/home/lofar/Projects/StudentRecordManagementSystem/backend/student-management-backend/src/main/java/com/studentmanagement/repository/StudentRepository.java

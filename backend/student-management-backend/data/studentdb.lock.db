@@ -1,0 +1,6 @@
+#FileLock
+#Sun Oct 25 10:32:06 EAT 2026
+hostName=lofar
+id=1a171f94c8dea6fa61caabeac99b74911e98b193a42
+method=file
+server=127.0.1.1\:36395

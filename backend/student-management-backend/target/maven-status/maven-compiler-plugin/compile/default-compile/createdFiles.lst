@@ -1,3 +1,10 @@
+com/studentmanagement/repository/ResultRepository.class
+com/studentmanagement/model/Student.class
 com/studentmanagement/StudentController.class
-com/studentmanagement/StudentManagementApplication.class
+com/studentmanagement/repository/AttendanceRepository.class
 com/studentmanagement/App.class
+com/studentmanagement/model/Result.class
+com/studentmanagement/repository/StudentRepository.class
+com/studentmanagement/SecurityConfig.class
+com/studentmanagement/StudentManagementApplication.class
+com/studentmanagement/model/Attendance.class

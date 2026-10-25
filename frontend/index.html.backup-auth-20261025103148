@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101828">
+  <meta name="description" content="Student Record Management System - Academic Project">
+  <title>StudentHub | Student Management System</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #fff;
+      --text: #182230;
+      --muted: #667085;
+      --border: #e5eaf2;
+      --primary: #405cf5;
+      --primary-dark: #3047cf;
+      --green: #15803d;
+      --red: #b42318;
+      --shadow: 0 8px 28px rgba(16,24,40,.055);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .layout { min-height: 100vh; }
+    header {
+      background: #101828;
+      color: white;
+      padding: 19px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .logo {
+      width: 44px; height: 44px; display: grid; place-items: center;
+      border-radius: 13px; background: var(--primary);
+      font-size: 21px; font-weight: 800;
+    }
+    header h1 { margin: 0; font-size: 20px; }
+    header p { margin: 5px 0 0; color: #b8c3d4; font-size: 13px; }
+    .connection {
+      display: flex; align-items: center; gap: 9px;
+      font-size: 13px; color: #d0d5dd;
+      background: #1d2939; padding: 10px 14px; border-radius: 25px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #f79009; }
+    .dot.online { background: #32d583; }
+    .dot.offline { background: #f04438; }
+    main { max-width: 1250px; margin: auto; padding: 34px 24px 48px; }
+    .welcome {
+      display: flex; justify-content: space-between; align-items: end;
+      flex-wrap: wrap; gap: 16px; margin-bottom: 25px;
+    }
+    .welcome h2 { margin: 0; font-size: 27px; letter-spacing: -.6px; }
+    .welcome p { margin: 8px 0 0; color: var(--muted); font-size: 14px; }
+    .date-label { color: var(--muted); font-size: 13px; }
+    .stats {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px; margin-bottom: 24px;
+    }
+    .stat, .panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; box-shadow: var(--shadow);
+    }
+    .stat { padding: 22px; display: flex; align-items: center; gap: 16px; }
+    .stat-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: grid; place-items: center; font-size: 22px; background: #eef2ff;
+    }
+    .stat:nth-child(2) .stat-icon { background: #ecfdf3; }
+    .stat:nth-child(3) .stat-icon { background: #fff7ed; }
+    .stat-label { color: var(--muted); font-size: 13px; }
+    .stat-value { font-size: 28px; font-weight: 750; margin-top: 6px; }
+    .content-grid {
+      display: grid; grid-template-columns: 340px minmax(0, 1fr);
+      gap: 22px; align-items: start;
+    }
+    .panel { padding: 24px; min-width: 0; }
+    .panel-heading {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px; margin-bottom: 22px;
+    }
+    .panel-heading h3 { margin: 0; font-size: 17px; }
+    .panel-heading p { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+    .field { margin-bottom: 17px; }
+    label { display: block; font-size: 13px; font-weight: 650; margin-bottom: 8px; }
+    input, select {
+      width: 100%; min-width: 0; padding: 12px 13px;
+      border: 1px solid #d0d5dd; border-radius: 9px;
+      background: white; color: var(--text); outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(64,92,245,.12);
+    }
+    input::placeholder { color: #98a2b3; }
+    .btn {
+      border: 0; border-radius: 9px; padding: 11px 14px;
+      font-weight: 650; font-size: 13px; transition: .15s;
+    }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { background: #eef2f6; color: #344054; }
+    .btn-secondary:hover { background: #e4e7ec; }
+    .btn-danger { background: #fef3f2; color: var(--red); }
+    .btn-danger:hover { background: #fee4e2; }
+    .btn-edit { background: #eff6ff; color: #1d4ed8; }
+    .btn-edit:hover { background: #dbeafe; }
+    .form-actions { display: flex; gap: 10px; }
+    .form-actions button { flex: 1; }
+    .notice { font-size: 13px; line-height: 1.5; margin-top: 14px; min-height: 19px; }
+    .notice.success { color: var(--green); }
+    .notice.error { color: var(--red); }
+    .notice.info { color: var(--muted); }
+    .table-panel { padding: 24px 0 0; overflow: hidden; }
+    .table-panel .panel-heading { padding: 0 24px; }
+    .table-toolbar {
+      display: flex; gap: 10px; padding: 0 24px 18px;
+      align-items: center; flex-wrap: wrap;
+    }
+    .search-wrap { flex: 1; min-width: 190px; position: relative; }
+    .search-wrap input { padding-left: 38px; }
+    .search-icon {
+      position: absolute; left: 13px; top: 50%;
+      transform: translateY(-50%); color: #98a2b3;
+    }
+    .record-count {
+      font-size: 12px; color: var(--muted); white-space: nowrap;
+      background: #f2f4f7; border-radius: 7px; padding: 9px 11px;
+    }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; min-width: 650px; }
+    thead { background: #f9fafb; }
+    th {
+      color: #667085; font-size: 11px; font-weight: 700;
+      letter-spacing: .55px; text-transform: uppercase;
+    }
+    th, td {
+      padding: 15px 18px; text-align: left;
+      border-top: 1px solid #eaecf0;
+    }
+    td { font-size: 13px; }
+    tbody tr:hover { background: #fafbff; }
+    .student-name { font-weight: 650; color: #101828; }
+    .id-badge {
+      display: inline-block; background: #f2f4f7; color: #475467;
+      border-radius: 6px; padding: 5px 8px; font-size: 12px;
+    }
+    .semester-badge {
+      display: inline-block; background: #ecfdf3; color: #027a48;
+      padding: 5px 9px; border-radius: 20px; font-size: 11px; font-weight: 650;
+    }
+    .actions { display: flex; gap: 7px; }
+    .actions .btn { padding: 8px 10px; }
+    .empty { padding: 40px 20px; text-align: center; color: var(--muted); }
+    .empty strong { display: block; color: #344054; margin-bottom: 7px; }
+    .table-footer {
+      padding: 14px 24px; color: var(--muted); font-size: 12px;
+      border-top: 1px solid var(--border);
+    }
+    footer { text-align: center; color: #98a2b3; padding: 25px 15px; font-size: 12px; }
+    .hidden { display: none !important; }
+    @media (max-width: 900px) {
+      .content-grid { grid-template-columns: 1fr; }
+      .stats { gap: 12px; }
+      .stat { padding: 16px; }
+    }
+    @media (max-width: 560px) {
+      main { padding: 24px 14px 35px; }
+      header { padding: 16px; }
+      header h1 { font-size: 17px; }
+      .welcome h2 { font-size: 23px; }
+      .stats { grid-template-columns: 1fr; }
+      .stat { padding: 15px 18px; }
+      .stat-value { font-size: 24px; }
+      .panel { padding: 19px; }
+      .table-panel { padding: 20px 0 0; }
+      .table-panel .panel-heading { padding: 0 17px; }
+      .table-toolbar { padding: 0 17px 15px; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <header>
+    <div class="brand">
+      <div class="logo">S</div>
+      <div>
+        <h1>StudentHub</h1>
+        <p>Student Record Management System</p>
+      </div>
+    </div>
+    <div class="connection">
+      <span class="dot" id="statusDot"></span>
+      <span id="apiStatus">Connecting to backend...</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="welcome">
+      <div>
+        <h2>Dashboard Overview</h2>
+        <p>Manage student information efficiently from one place.</p>
+      </div>
+      <div class="date-label" id="currentDate"></div>
+    </section>
+
+    <section class="stats">
+      <div class="stat">
+        <div class="stat-icon">👥</div>
+        <div><div class="stat-label">Total Students</div><div class="stat-value" id="totalStudents">0</div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">🎓</div>
+        <div><div class="stat-label">Academic Department</div><div class="stat-value" style="font-size:20px">Computer Science</div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">✓</div>
+        <div><div class="stat-label">API Status</div><div class="stat-value" style="font-size:20px" id="apiSummary">Checking...</div></div>
+      </div>
+    </section>
+
+    <section class="content-grid">
+      <div class="panel">
+        <div class="panel-heading">
+          <div>
+            <h3 id="formTitle">Add New Student</h3>
+            <p>Enter the student's academic details.</p>
+          </div>
+        </div>
+        <form id="studentForm">
+          <div class="field">
+            <label for="name">Full Name</label>
+            <input id="name" name="name" placeholder="e.g. Rahul Kumar" required maxlength="100">
+          </div>
+          <div class="field">
+            <label for="course">Course / Department</label>
+            <input id="course" name="course" placeholder="e.g. Computer Science" required maxlength="100">
+          </div>
+          <div class="field">
+            <label for="semester">Semester</label>
+            <select id="semester" name="semester" required>
+              <option value="">Select semester</option>
+              <option>1st</option><option>2nd</option><option>3rd</option>
+              <option>4th</option><option>5th</option><option>6th</option>
+              <option>7th</option><option>8th</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" id="submitBtn" type="submit">+ Add Student</button>
+            <button class="btn btn-secondary hidden" id="cancelEditBtn" type="button">Cancel</button>
+          </div>
+        </form>
+        <div class="notice" id="formMessage" role="status" aria-live="polite"></div>
+      </div>
+
+      <div class="panel table-panel">
+        <div class="panel-heading">
+          <div>
+            <h3>Student Records</h3>
+            <p>View, search, edit or remove records.</p>
+          </div>
+          <button class="btn btn-secondary" id="refreshBtn" type="button">↻ Refresh</button>
+        </div>
+
+        <div class="table-toolbar">
+          <div class="search-wrap">
+            <span class="search-icon">⌕</span>
+            <input id="search" type="search" placeholder="Search name, course, semester or ID..." aria-label="Search student records">
+          </div>
+          <span class="record-count" id="recordCount">0 records</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th><th>Student</th><th>Course</th><th>Semester</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentTable">
+              <tr><td colspan="5" class="empty">Loading student records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer" id="listMessage" role="status" aria-live="polite">Records are loaded from the backend API.</div>
+      </div>
+    </section>
+  </main>
+  <footer>StudentHub · Student Record Management System · Academic Project</footer>
+</div>
+
+<script>
+  const API = "http://localhost:8080/api/students";
+  let students = [];
+  let editingId = null;
+  let isLoading = false;
+
+  const $ = id => document.getElementById(id);
+  const form = $("studentForm");
+  const table = $("studentTable");
+  const formMessage = $("formMessage");
+  const listMessage = $("listMessage");
+
+  $("currentDate").textContent = new Intl.DateTimeFormat("en-IN", {
+    weekday: "short", day: "numeric", month: "short", year: "numeric"
+  }).format(new Date());
+
+  function setMessage(element, message, type = "info") {
+    element.textContent = message;
+    element.className = "notice " + type;
+  }
+
+  function setConnection(online) {
+    $("apiStatus").textContent = online ? "Backend Connected" : "Backend Offline";
+    $("apiSummary").textContent = online ? "Connected" : "Offline";
+    $("statusDot").className = "dot " + (online ? "online" : "offline");
+  }
+
+  async function apiRequest(url, options = {}) {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      let message = "Request failed (HTTP " + response.status + ")";
+      try {
+        const data = await response.json();
+        if (data.message) message = data.message;
+        else if (data.error) message = data.error;
+      } catch (_) {}
+      throw new Error(message);
+    }
+    if (response.status === 204) return null;
+    return response.json();
+  }
+
+  async function loadStudents() {
+    if (isLoading) return;
+    isLoading = true;
+    $("refreshBtn").disabled = true;
+    $("refreshBtn").textContent = "Loading...";
+    try {
+      const data = await apiRequest(API);
+      students = Array.isArray(data) ? data : [];
+      setConnection(true);
+      renderStudents();
+      listMessage.textContent = "Student records loaded successfully.";
+    } catch (error) {
+      setConnection(false);
+      table.replaceChildren();
+      const row = table.insertRow();
+      const cell = row.insertCell();
+      cell.colSpan = 5;
+      cell.className = "empty";
+      const title = document.createElement("strong");
+      title.textContent = "Unable to load records";
+      cell.append(title, document.createTextNode("Make sure Spring Boot is running on port 8080."));
+      $("totalStudents").textContent = "—";
+      $("recordCount").textContent = "Unavailable";
+      listMessage.textContent = error.message;
+    } finally {
+      isLoading = false;
+      $("refreshBtn").disabled = false;
+      $("refreshBtn").textContent = "↻ Refresh";
+    }
+  }
+
+  function renderStudents() {
+    const query = $("search").value.trim().toLowerCase();
+    const filtered = students.filter(student =>
+      [student.id, student.name, student.course, student.semester]
+        .some(value => String(value ?? "").toLowerCase().includes(query))
+    );
+
+    $("totalStudents").textContent = students.length;
+    $("recordCount").textContent = filtered.length + (filtered.length === 1 ? " record" : " records");
+    table.replaceChildren();
+
+    if (!filtered.length) {
+      const row = table.insertRow();
+      const cell = row.insertCell();
+      cell.colSpan = 5;
+      cell.className = "empty";
+      const title = document.createElement("strong");
+      title.textContent = query ? "No matching students found" : "No student records yet";
+      cell.append(title, document.createTextNode(query ? "Try another search term." : "Use the form to add your first student."));
+      return;
+    }
+
+    filtered.forEach(student => {
+      const row = table.insertRow();
+
+      const idCell = row.insertCell();
+      const idBadge = document.createElement("span");
+      idBadge.className = "id-badge";
+      idBadge.textContent = "#" + student.id;
+      idCell.appendChild(idBadge);
+
+      const nameCell = row.insertCell();
+      const name = document.createElement("span");
+      name.className = "student-name";
+      name.textContent = student.name || "—";
+      nameCell.appendChild(name);
+
+      row.insertCell().textContent = student.course || "—";
+
+      const semesterCell = row.insertCell();
+      const semester = document.createElement("span");
+      semester.className = "semester-badge";
+      semester.textContent = student.semester || "—";
+      semesterCell.appendChild(semester);
+
+      const actionCell = row.insertCell();
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      const editButton = document.createElement("button");
+      editButton.className = "btn btn-edit";
+      editButton.type = "button";
+      editButton.textContent = "Edit";
+      editButton.addEventListener("click", () => startEdit(student));
+
+      const deleteButton = document.createElement("button");
+      deleteButton.className = "btn btn-danger";
+      deleteButton.type = "button";
+      deleteButton.textContent = "Delete";
+      deleteButton.addEventListener("click", () => deleteStudent(student.id));
+
+      actions.append(editButton, deleteButton);
+      actionCell.appendChild(actions);
+    });
+  }
+
+  function startEdit(student) {
+    editingId = student.id;
+    $("name").value = student.name || "";
+    $("course").value = student.course || "";
+    $("semester").value = student.semester || "";
+    $("formTitle").textContent = "Edit Student #" + student.id;
+    $("submitBtn").textContent = "Save Changes";
+    $("cancelEditBtn").classList.remove("hidden");
+    setMessage(formMessage, "Editing student #" + student.id + ". Update the fields and save.", "info");
+    $("name").focus();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function resetForm() {
+    editingId = null;
+    form.reset();
+    $("formTitle").textContent = "Add New Student";
+    $("submitBtn").textContent = "+ Add Student";
+    $("cancelEditBtn").classList.add("hidden");
+  }
+
+  $("cancelEditBtn").addEventListener("click", () => {
+    resetForm();
+    setMessage(formMessage, "Edit cancelled.", "info");
+  });
+
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const student = {
+      name: $("name").value.trim(),
+      course: $("course").value.trim(),
+      semester: $("semester").value.trim()
+    };
+
+    if (!student.name || !student.course || !student.semester) {
+      setMessage(formMessage, "Please complete all fields.", "error");
+      return;
+    }
+
+    const wasEditing = editingId !== null;
+    const url = wasEditing ? `${API}/${encodeURIComponent(editingId)}` : API;
+    const method = wasEditing ? "PUT" : "POST";
+    $("submitBtn").disabled = true;
+    $("submitBtn").textContent = wasEditing ? "Saving..." : "Adding...";
+    setMessage(formMessage, wasEditing ? "Updating student..." : "Adding student...", "info");
+
+    try {
+      await apiRequest(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(student)
+      });
+      resetForm();
+      setMessage(formMessage, wasEditing ? "Student updated successfully." : "Student added successfully.", "success");
+      await loadStudents();
+    } catch (error) {
+      setMessage(formMessage, "Operation failed: " + error.message, "error");
+    } finally {
+      $("submitBtn").disabled = false;
+      $("submitBtn").textContent = editingId !== null ? "Save Changes" : "+ Add Student";
+    }
+  });
+
+  async function deleteStudent(id) {
+    const student = students.find(item => String(item.id) === String(id));
+    const label = student ? student.name : "this student";
+    if (!confirm(`Delete ${label} (ID ${id})? This action cannot be undone.`)) return;
+
+    listMessage.textContent = "Deleting student...";
+    try {
+      await apiRequest(`${API}/${encodeURIComponent(id)}`, { method: "DELETE" });
+      if (String(editingId) === String(id)) resetForm();
+      listMessage.textContent = "Student deleted successfully.";
+      await loadStudents();
+    } catch (error) {
+      listMessage.textContent = "Delete failed: " + error.message;
+    }
+  }
+
+  $("search").addEventListener("input", renderStudents);
+  $("refreshBtn").addEventListener("click", loadStudents);
+
+  loadStudents();
+</script>
+</body>
+</html>
