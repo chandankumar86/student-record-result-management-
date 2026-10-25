@@ -1,79 +1,63 @@
-
 package com.studentmanagement;
 
+import com.studentmanagement.model.*;
+import com.studentmanagement.repository.*;
 import org.springframework.web.bind.annotation.*;
-import java.util.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/students")
-@CrossOrigin(origins = "*")
+@RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:5501")
 public class StudentController {
+    private final StudentRepository students;
+    private final AttendanceRepository attendance;
+    private final ResultRepository results;
 
-    private final List<Map<String, Object>> students = new ArrayList<>();
-    private int nextId = 1;
-
-    // View all students
-    @GetMapping
-    public List<Map<String, Object>> getStudents() {
-        return students;
+    public StudentController(StudentRepository s, AttendanceRepository a, ResultRepository r) {
+        students=s; attendance=a; results=r;
     }
 
-    // Add a student
-    @PostMapping
-    public Map<String, Object> addStudent(
-            @RequestBody Map<String, Object> student) {
+    @GetMapping("/students")
+    public List<Student> allStudents() { return students.findAll(); }
 
-        Map<String, Object> newStudent = new HashMap<>(student);
-        newStudent.put("id", nextId++);
-        students.add(newStudent);
-
-        return newStudent;
+    @PostMapping("/students")
+    public Student addStudent(@RequestBody Student s) {
+        s.id=null;
+        return students.save(s);
     }
 
-    // Search student by ID
-    @GetMapping("/{id}")
-    public Map<String, Object> getStudent(@PathVariable int id) {
-        return findStudent(id);
+    @PutMapping("/students/{id}")
+    public Student updateStudent(@PathVariable Long id, @RequestBody Student s) {
+        Student old=students.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        old.name=s.name; old.course=s.course; old.semester=s.semester; old.email=s.email;
+        return students.save(old);
     }
 
-    // Update a student
-    @PutMapping("/{id}")
-    public Map<String, Object> updateStudent(
-            @PathVariable int id,
-            @RequestBody Map<String, Object> updatedStudent) {
-
-        Map<String, Object> student = findStudent(id);
-
-        if (updatedStudent.containsKey("name")) {
-            student.put("name", updatedStudent.get("name"));
-        }
-
-        if (updatedStudent.containsKey("course")) {
-            student.put("course", updatedStudent.get("course"));
-        }
-
-        if (updatedStudent.containsKey("semester")) {
-            student.put("semester", updatedStudent.get("semester"));
-        }
-
-        return student;
+    @DeleteMapping("/students/{id}")
+    public void deleteStudent(@PathVariable Long id) {
+        if (!students.existsById(id)) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        students.deleteById(id);
     }
 
-    // Delete a student
-    @DeleteMapping("/{id}")
-    public Map<String, String> deleteStudent(@PathVariable int id) {
-        Map<String, Object> student = findStudent(id);
-        students.remove(student);
+    @GetMapping("/attendance")
+    public List<Attendance> allAttendance() { return attendance.findAll(); }
 
-        return Map.of("message", "Student deleted successfully");
+    @PostMapping("/attendance")
+    public Attendance addAttendance(@RequestBody Attendance a) {
+        a.id=null;
+        return attendance.save(a);
     }
 
-    // Find student helper
-    private Map<String, Object> findStudent(int id) {
-        return students.stream()
-                .filter(student -> student.get("id").equals(id))
-                .findFirst()
-                .orElseThrow(() ->
-                        new NoSuchElementException("Student not found"));
+    @GetMapping("/results")
+    public List<Result> allResults() { return results.findAll(); }
+
+    @PostMapping("/results")
+    public Result addResult(@RequestBody Result r) {
+        if (r.marks < 0 || r.totalMarks <= 0 || r.marks > r.totalMarks)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid marks");
+        r.id=null;
+        return results.save(r);
     }
 }
