@@ -1,12 +1,10 @@
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    private static final String[] SUBJECTS = {"Subject 1", "Subject 2", "Subject 3"};
-
-    private final List<Student> students = new ArrayList<>();
     private final Scanner scanner = new Scanner(System.in);
+    private final StudentRecords records = new StudentRecords();
+    private final StudentOperations operations = new StudentOperations();
+    private final ResultCalculator calculator = new ResultCalculator();
 
     public static void main(String[] args) {
         new Main().run();
@@ -14,211 +12,94 @@ public class Main {
 
     private void run() {
         boolean running = true;
+
         while (running) {
-            printMenu();
-            int choice = readInt("Choose an option: ", 1, 6);
-            switch (choice) {
-                case 1:
-                    addStudent();
-                    break;
-                case 2:
-                    listStudents();
-                    break;
-                case 3:
-                    searchStudent();
-                    break;
-                case 4:
-                    enterMarks();
-                    break;
-                case 5:
-                    deleteStudent();
-                    break;
-                case 6:
-                    running = false;
-                    System.out.println("Goodbye.");
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+            System.out.println("\n==================================");
+            System.out.println(" STUDENT RECORD & RESULT SYSTEM");
+            System.out.println("==================================");
+            System.out.println("1. Add Student");
+            System.out.println("2. View All Students");
+            System.out.println("3. Search Student");
+            System.out.println("4. Update Student");
+            System.out.println("5. Delete Student");
+            System.out.println("6. Calculate Student Result");
+            System.out.println("7. Exit");
+            System.out.print("Choose option: ");
 
-    private void printMenu() {
-        System.out.println("\nStudent Record & Result Management");
-        System.out.println("1. Add student");
-        System.out.println("2. List students");
-        System.out.println("3. Search student");
-        System.out.println("4. Enter or update marks");
-        System.out.println("5. Delete student");
-        System.out.println("6. Exit");
-    }
+            String choice = scanner.nextLine().trim();
 
-    private void addStudent() {
-        int id = readInt("Student ID: ", 1, Integer.MAX_VALUE);
-        if (findStudent(id) != null) {
-            System.out.println("A student with that ID already exists.");
-            return;
-        }
-
-        String name = readRequiredText("Student name: ");
-        students.add(new Student(id, name));
-        System.out.println("Student added.");
-    }
-
-    private void listStudents() {
-        if (students.isEmpty()) {
-            System.out.println("No students found.");
-            return;
-        }
-
-        for (Student student : students) {
-            printStudent(student);
-        }
-    }
-
-    private void searchStudent() {
-        int id = readInt("Student ID: ", 1, Integer.MAX_VALUE);
-        Student student = findStudent(id);
-        if (student == null) {
-            System.out.println("Student not found.");
-            return;
-        }
-
-        printStudent(student);
-    }
-
-    private void enterMarks() {
-        int id = readInt("Student ID: ", 1, Integer.MAX_VALUE);
-        Student student = findStudent(id);
-        if (student == null) {
-            System.out.println("Student not found.");
-            return;
-        }
-
-        int[] marks = new int[SUBJECTS.length];
-        for (int index = 0; index < SUBJECTS.length; index++) {
-            marks[index] = readInt(SUBJECTS[index] + " marks (0-100): ", 0, 100);
-        }
-        student.setMarks(marks);
-        System.out.println("Marks saved.");
-    }
-
-    private void deleteStudent() {
-        int id = readInt("Student ID: ", 1, Integer.MAX_VALUE);
-        Student student = findStudent(id);
-        if (student == null) {
-            System.out.println("Student not found.");
-            return;
-        }
-
-        students.remove(student);
-        System.out.println("Student deleted.");
-    }
-
-    private Student findStudent(int id) {
-        for (Student student : students) {
-            if (student.getId() == id) {
-                return student;
-            }
-        }
-        return null;
-    }
-
-    private void printStudent(Student student) {
-        System.out.println("ID: " + student.getId());
-        System.out.println("Name: " + student.getName());
-        System.out.println("Result: " + student.resultSummary());
-        System.out.println();
-    }
-
-    private int readInt(String prompt, int minimum, int maximum) {
-        while (true) {
-            System.out.print(prompt);
-            String input = scanner.nextLine().trim();
             try {
-                int value = Integer.parseInt(input);
-                if (value >= minimum && value <= maximum) {
-                    return value;
+                switch (choice) {
+                    case "1":
+                        records.addStudent(scanner);
+                        break;
+                    case "2":
+                        records.listStudents();
+                        break;
+                    case "3":
+                        records.searchStudent(scanner);
+                        break;
+                    case "4":
+                        operations.updateStudent(records, scanner);
+                        break;
+                    case "5":
+                        operations.deleteStudent(records, scanner);
+                        break;
+                    case "6":
+                        calculateResult();
+                        break;
+                    case "7":
+                        running = false;
+                        System.out.println("Thank you for using the system.");
+                        break;
+                    default:
+                        System.out.println("Invalid option. Choose 1 to 7.");
                 }
-            } catch (NumberFormatException exception) {
-                System.out.println("Enter a valid whole number.");
-                continue;
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid number. Please try again.");
+            } catch (Exception e) {
+                System.out.println("Operation failed: " + e.getMessage());
             }
-            System.out.println("Enter a number from " + minimum + " to " + maximum + ".");
         }
+
+        scanner.close();
     }
 
-    private String readRequiredText(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            String value = scanner.nextLine().trim();
-            if (!value.isEmpty()) {
-                return value;
-            }
-            System.out.println("This value cannot be empty.");
-        }
-    }
+    private void calculateResult() {
+        System.out.print("Enter student ID: ");
+        int id = Integer.parseInt(scanner.nextLine().trim());
 
-    private static final class Student {
-        private final int id;
-        private final String name;
-        private int[] marks = {-1, -1, -1};
+        StudentRecords.Student student = records.getStudent(id);
 
-        private Student(int id, String name) {
-            this.id = id;
-            this.name = name;
+        if (student == null) {
+            System.out.println("Student not found. Add the student first.");
+            return;
         }
 
-        private int getId() {
-            return id;
-        }
+        double[] marks = new double[5];
 
-        private String getName() {
-            return name;
-        }
+        for (int i = 0; i < marks.length; i++) {
+            while (true) {
+                System.out.print("Enter marks for Subject " + (i + 1)
+                        + " (0-100): ");
+                try {
+                    double mark = Double.parseDouble(scanner.nextLine().trim());
 
-        private void setMarks(int[] marks) {
-            this.marks = marks.clone();
-        }
+                    if (Double.isFinite(mark) && mark >= 0 && mark <= 100) {
+                        marks[i] = mark;
+                        break;
+                    }
 
-        private String resultSummary() {
-            int total = 0;
-            boolean passed = true;
-            for (int mark : marks) {
-                if (mark < 0) {
-                    return "Pending (marks not entered)";
-                }
-                total += mark;
-                if (mark < 40) {
-                    passed = false;
+                    System.out.println("Marks must be between 0 and 100.");
+                } catch (NumberFormatException e) {
+                    System.out.println("Enter a valid number.");
                 }
             }
-
-            double average = (double) total / marks.length;
-            String grade = gradeFor(average, passed);
-            return String.format("%s, total %d/%d, average %.2f%%", grade, total, marks.length * 100, average);
         }
 
-        private String gradeFor(double average, boolean passed) {
-            if (!passed) {
-                return "Fail";
-            }
-            if (average >= 90) {
-                return "A+";
-            }
-            if (average >= 80) {
-                return "A";
-            }
-            if (average >= 70) {
-                return "B";
-            }
-            if (average >= 60) {
-                return "C";
-            }
-            if (average >= 50) {
-                return "D";
-            }
-            return "Pass";
-        }
+        calculator.displayResult(
+                student.name,
+                marks[0], marks[1], marks[2], marks[3], marks[4]
+        );
     }
 }
